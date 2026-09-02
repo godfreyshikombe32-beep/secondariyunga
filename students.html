@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Students - Iyunga Portal</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+</head>
+
+<body>
+
+<div class="content">
+
+    <div class="page-title">
+
+        <div>
+
+            <h1>
+                <i class="fa-solid fa-user-graduate"></i>
+                Students
+            </h1>
+
+            <p>
+                Manage all students in Iyunga Secondary School.
+            </p>
+
+        </div>
+
+
+        <a href="students.html?view=add"
+           class="primary-btn"
+           style="text-decoration:none;">
+
+            <i class="fa-solid fa-plus"></i>
+
+            Add Student
+
+        </a>
+
+    </div>
+
+
+    <div class="dashboard-card">
+
+        <div class="search-box">
+
+            <i class="fa-solid fa-magnifying-glass"></i>
+
+            <input
+                type="text"
+                id="searchInput"
+                onkeyup="searchStudents()"
+                placeholder="Search student...">
+
+        </div>
+
+
+        <br>
+
+
+            <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>Reg. Number</th>
+
+                    <th>Student Name</th>
+
+                    <th>Gender</th>
+
+                    <th>Class</th>
+
+                    <th>Status</th>
+
+                    <th>Parent/Guardian</th>
+                    <th>Action</th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody id="studentTableBody"></tbody>
+
+        </table>
+
+    </div>
+
+    <div class="dashboard-card student-form-card" id="studentFormPanel" hidden>
+        <form id="studentForm" onsubmit="saveStudent(event)">
+            <div class="form-grid">
+                <div class="input-group"><label for="studentName">Full Name</label><input id="studentName" type="text" required></div>
+                <div class="input-group"><label for="registrationNumber">Registration Number</label><input id="registrationNumber" type="text" required></div>
+                <div class="input-group"><label for="studentClass">Class</label><select id="studentClass"><option>Form I</option><option>Form II</option><option>Form III</option><option>Form IV</option><option>Form V</option><option>Form VI</option></select></div>
+                <div class="input-group"><label for="studentGender">Gender</label><select id="studentGender"><option>Male</option><option>Female</option></select></div>
+                <div class="input-group"><label for="dateOfBirth">Date of Birth</label><input id="dateOfBirth" type="date" required></div>
+                <div class="input-group"><label for="parentName">Parent/Guardian Name</label><input id="parentName" type="text" required></div>
+                <div class="input-group"><label for="parentPhone">Parent/Guardian Phone</label><input id="parentPhone" type="tel" required></div>
+                <div class="input-group"><label for="studentAddress">Home Address</label><input id="studentAddress" type="text" required></div>
+            </div>
+            <div class="form-actions"><a href="students.html" class="secondary-btn">Cancel</a><button class="primary-btn" type="submit"><i class="fa-solid fa-check"></i> Save Student</button></div>
+        </form>
+    </div>
+
+</div>
+
+
+<script src="script.js"></script>
+
+</body>
+
+</html>

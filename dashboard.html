@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Admin Dashboard - Iyunga Secondary School</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Icons -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+
+<body>
+
+<div class="dashboard-container">
+
+    <!-- ================= SIDEBAR ================= -->
+
+    <aside class="sidebar" id="sidebar">
+
+        <div class="sidebar-logo">
+            <img class="logo-circle small" src="logo.jpg.jpeg" alt="Iyunga Secondary School logo">
+
+            <div>
+                <h2>Iyunga</h2>
+                <span>School Portal</span>
+            </div>
+        </div>
+
+        <ul class="sidebar-menu">
+
+            <li class="active">
+                <a href="dashboard.html">
+                    <i class="fa-solid fa-gauge"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="students.html" onclick="openSidePanel(event, this.href, 'Students')">
+                    <i class="fa-solid fa-user-graduate"></i>
+                    <span>Students</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="teachers.html" onclick="openSidePanel(event, this.href, 'Teachers')">
+                    <i class="fa-solid fa-chalkboard-user"></i>
+                    <span>Teachers</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="school.html#classes" onclick="openSidePanel(event, this.href, 'Classes')">
+                    <i class="fa-solid fa-school"></i>
+                    <span>Classes</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="results.html" onclick="openSidePanel(event, this.href, 'Results')">
+                    <i class="fa-solid fa-file-lines"></i>
+                    <span>Results</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="school.html#attendance" onclick="openSidePanel(event, this.href, 'Attendance')">
+                    <i class="fa-solid fa-calendar-days"></i>
+                    <span>Attendance</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="school.html#announcements" onclick="openSidePanel(event, this.href, 'Announcements')">
+                    <i class="fa-solid fa-bullhorn"></i>
+                    <span>Announcements</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="school.html#settings" onclick="openSidePanel(event, this.href, 'Settings')">
+                    <i class="fa-solid fa-gear"></i>
+                    <span>Settings</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="index.html" onclick="logout()">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    <span>Logout</span>
+                </a>
+            </li>
+
+        </ul>
+
+    </aside>
+
+
+    <!-- ================= MAIN AREA ================= -->
+
+    <main class="main-area">
+
+        <!-- HEADER -->
+
+        <header class="top-header">
+
+            <button class="menu-toggle" onclick="toggleSidebar()">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+
+            <div class="search-box">
+                <i class="fa-solid fa-magnifying-glass"></i>
+
+                <input type="text"
+                       id="searchInput"
+                       placeholder="Search student, teacher, registration number...">
+            </div>
+
+            <div class="header-right">
+
+                <div class="notification-wrap">
+                    <button class="notification" onclick="toggleNotifications(event)" aria-label="Open notifications" aria-expanded="false">
+                        <i class="fa-regular fa-bell"></i>
+                        <span class="notification-number">3</span>
+                    </button>
+                    <div class="notification-panel" id="notificationPanel" aria-hidden="true">
+                        <div class="notification-panel-header"><strong>Notifications</strong><button onclick="markNotificationsRead(event)">Mark read</button></div>
+                        <div class="notification-item unread"><i class="fa-solid fa-user-plus"></i><div><strong>New student registration</strong><p>A new student record is ready to review.</p><small>Just now</small></div></div>
+                        <div class="notification-item unread"><i class="fa-solid fa-bullhorn"></i><div><strong>New announcement</strong><p>There is a new school announcement.</p><small>Today</small></div></div>
+                        <div class="notification-item"><i class="fa-solid fa-calendar-check"></i><div><strong>Attendance reminder</strong><p>Remember to update today's attendance.</p><small>Yesterday</small></div></div>
+                    </div>
+                </div>
+
+                <div class="profile">
+
+                    <div class="profile-image">
+                        GS
+                    </div>
+
+                    <div class="profile-info">
+                        <strong>Admin - Godfrey Shikombe</strong>
+                        <small>Administrator</small>
+                    </div>
+
+                    <i class="fa-solid fa-chevron-down"></i>
+
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <!-- ================= CONTENT ================= -->
+
+        <section class="content">
+
+            <div class="welcome-hero">
+                <div class="welcome-copy">
+                    <span class="welcome-label">IYUNGA SECONDARY SCHOOL</span>
+                    <h1>Welcome back, Godfrey</h1>
+                    <p>Your school community is ready for a productive day. Choose a space below to continue managing the portal.</p>
+                    <a href="students.html?view=add" class="primary-btn" style="text-decoration:none;"><i class="fa-solid fa-plus"></i> Add Student</a>
+                </div>
+                <div class="welcome-mark"><i class="fa-solid fa-graduation-cap"></i><span>Learn<br>Lead<br>Grow</span></div>
+            </div>
+
+
+            <!-- ================= PORTAL AREAS ================= -->
+
+            <div class="analytics-grid">
+
+                <!-- Students -->
+
+                <a href="students.html" class="analytics-card portal-card">
+
+                    <div class="card-icon students">
+                        <i class="fa-solid fa-user-graduate"></i>
+                    </div>
+
+                    <div class="card-info"><p>Student Records</p><span>View and manage student information</span></div>
+
+                </a>
+
+
+                <!-- Teachers -->
+
+                <a href="teachers.html" class="analytics-card portal-card">
+
+                    <div class="card-icon teachers">
+                        <i class="fa-solid fa-chalkboard-user"></i>
+                    </div>
+
+                    <div class="card-info"><p>Teaching Team</p><span>Keep track of staff and subjects</span></div>
+
+                </a>
+
+
+                <!-- Classes -->
+
+                <a href="school.html#classes" class="analytics-card portal-card">
+
+                    <div class="card-icon classes">
+                        <i class="fa-solid fa-school"></i>
+                    </div>
+
+                    <div class="card-info"><p>Class Spaces</p><span>Explore classes and learning groups</span></div>
+
+                </a>
+
+
+                <!-- Attendance -->
+
+                <a href="school.html#attendance" class="analytics-card portal-card">
+
+                    <div class="card-icon attendance">
+                        <i class="fa-solid fa-calendar-check"></i>
+                    </div>
+
+                    <div class="card-info"><p>Daily Presence</p><span>Follow attendance and participation</span></div>
+
+                </a>
+
+            </div>
+
+
+            <!-- ================= LOWER CONTENT ================= -->
+
+            <div class="dashboard-grid">
+
+                <!-- Recent Students -->
+
+                <div class="dashboard-card">
+
+                    <div class="card-header">
+
+                        <div>
+                            <h3>Recent Students</h3>
+                            <p>Recently registered students</p>
+                        </div>
+
+                        <a href="students.html">View All</a>
+
+                    </div>
+
+                    <div class="table-container">
+
+                        <table>
+
+                            <thead>
+                                <tr>
+                                    <th>Student</th>
+                                    <th>Reg. Number</th>
+                                    <th>Class</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="recentStudentsBody"></tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Quick Actions -->
+
+                <div class="dashboard-card">
+
+                    <div class="card-header">
+
+                        <div>
+                            <h3>Quick Actions</h3>
+                            <p>Frequently used actions</p>
+                        </div>
+
+                    </div>
+
+                    <div class="quick-actions">
+
+                        <a href="students.html?view=add" class="quick-action">
+                            <i class="fa-solid fa-user-plus"></i>
+                            <span>Add Student</span>
+                        </a>
+
+                        <a href="teachers.html?view=add" class="quick-action">
+                            <i class="fa-solid fa-user-tie"></i>
+                            <span>Add Teacher</span>
+                        </a>
+
+                        <a href="results.html?view=add" class="quick-action">
+                            <i class="fa-solid fa-file-circle-plus"></i>
+                            <span>Add Results</span>
+                        </a>
+
+                        <a href="school.html#announcements" class="quick-action">
+                            <i class="fa-solid fa-bullhorn"></i>
+                            <span>Announcement</span>
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+<div class="side-panel-overlay" id="sidePanelOverlay" onclick="closeSidePanel()"></div>
+
+<aside class="side-panel" id="sidePanel" aria-hidden="true">
+    <div class="side-panel-header">
+        <h2 id="sidePanelTitle">Section</h2>
+        <button class="side-panel-close" onclick="closeSidePanel()" aria-label="Close panel">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+    </div>
+    <iframe id="sidePanelFrame" title="Dashboard section"></iframe>
+</aside>
+
+<script src="script.js"></script>
+
+</body>
+</html>

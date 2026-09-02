@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>School Management - Iyunga Portal</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body>
+<div class="content">
+    <div class="page-title">
+        <div><h1><i class="fa-solid fa-school"></i> School Management</h1><p>Classes, attendance, announcements and portal settings.</p></div>
+        <a href="dashboard.html" class="primary-btn" style="text-decoration:none;"><i class="fa-solid fa-arrow-left"></i> Dashboard</a>
+    </div>
+
+    <div class="dashboard-card" id="classes">
+        <h3>Classes</h3>
+        <table><thead><tr><th>Class</th><th>Students</th><th>Class Teacher</th><th>Status</th></tr></thead><tbody>
+            <tr><td>Form I</td><td>245</td><td>Ms. Asha M.</td><td><span class="status active-status">Active</span></td></tr>
+            <tr><td>Form II</td><td>238</td><td>Mr. Peter J.</td><td><span class="status active-status">Active</span></td></tr>
+            <tr><td>Form III</td><td>221</td><td>Ms. Neema P.</td><td><span class="status active-status">Active</span></td></tr>
+            <tr><td>Form IV</td><td>210</td><td>Mr. John M.</td><td><span class="status active-status">Active</span></td></tr>
+        </tbody></table>
+    </div>
+
+    <div class="dashboard-card" id="attendance">
+        <h3>Attendance</h3><p>Track student attendance for today.</p><br>
+        <table><thead><tr><th>Class</th><th>Present</th><th>Absent</th><th>Rate</th></tr></thead><tbody>
+            <tr><td>Form I</td><td>232</td><td>13</td><td>94.7%</td></tr><tr><td>Form II</td><td>226</td><td>12</td><td>95.0%</td></tr><tr><td>Form III</td><td>209</td><td>12</td><td>94.6%</td></tr>
+        </tbody></table>
+    </div>
+
+    <div class="dashboard-card" id="announcements">
+        <h3>Announcements</h3><p>Term opening notice: All students should report to school on Monday at 7:30 AM.</p><br><p>Parents meeting: The parents and teachers meeting will be held in the school hall this Saturday.</p>
+    </div>
+
+    <div class="dashboard-card" id="settings">
+        <h3>System Settings</h3><br><div class="form-group"><label for="schoolName">School Name</label><input id="schoolName" type="text" value="Iyunga Secondary School"></div><br><div class="form-group"><label for="academicYear">Academic Year</label><select id="academicYear"><option>2026</option><option>2027</option><option>2028</option></select></div><br><button class="primary-btn" onclick="saveSettings()">Save Settings</button>
+    </div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

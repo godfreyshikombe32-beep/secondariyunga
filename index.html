@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iyunga Secondary School Portal - Login</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="login-body">
+
+    <div class="login-container">
+
+        <div class="school-logo">
+            <img class="school-logo-image" src="logo.jpg.jpeg" alt="Iyunga Secondary School logo">
+            <h1>Iyunga Secondary School</h1>
+            <p>School Management Portal</p>
+        </div>
+
+        <form onsubmit="login(event)">
+
+            <div class="input-group">
+                <label>Username</label>
+                <input type="text" id="username"
+                       placeholder="Enter username" required>
+            </div>
+
+            <div class="input-group">
+                <label>Password</label>
+                <input type="password" id="password"
+                       placeholder="Enter password" required>
+            </div>
+
+            <div class="login-options">
+                <label>
+                    <input type="checkbox">
+                    Remember me
+                </label>
+            </div>
+
+            <button type="submit" class="login-btn">
+                Login
+            </button>
+
+        </form>
+
+        <p class="login-footer">
+            © 2026 Iyunga Secondary School
+        </p>
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
