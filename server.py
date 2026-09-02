@@ -3,7 +3,6 @@ import json
 import os
 import secrets
 import sqlite3
-from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -49,136 +48,111 @@ def row_json(row):
     return value
 
 
-class Handler(BaseHTTPRequestHandler):
-    def send_json(self, status, payload):
+initialize_database()
+
+
+def app(environ, start_response):
+    method = environ.get("REQUEST_METHOD", "GET")
+    path = environ.get("PATH_INFO", "/")
+
+    def response(status_code, headers_list, body_bytes):
+        status_text = f"{status_code} OK" if status_code in (200, 201, 204) else f"{status_code} ERROR"
+        start_response(status_text, headers_list)
+        return [body_bytes]
+
+    def send_json(status_code, payload):
         body = json.dumps(payload).encode()
-        self.send_response(status)
-        self.send_header("Content-Type", "application/json")
-        self.send_header("Content-Length", str(len(body)))
-        self.send_header("Access-Control-Allow-Origin", "*")
-        self.end_headers()
-        self.wfile.write(body)
+        headers = [
+            ("Content-Type", "application/json"),
+            ("Content-Length", str(len(body))),
+            ("Access-Control-Allow-Origin", "*"),
+            ("Access-Control-Allow-Headers", "Content-Type, Authorization"),
+            ("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS"),
+        ]
+        return response(status_code, headers, body)
 
-    def read_json(self):
-        length = int(self.headers.get("Content-Length", 0))
-        return json.loads(self.rfile.read(length) or b"{}")
+    if method == "OPTIONS":
+        return send_json(204, {})
 
-    def authenticated(self):
-        return self.headers.get("Authorization", "").replace("Bearer ", "") in TOKENS
+    auth_header = environ.get("HTTP_AUTHORIZATION", "").replace("Bearer ", "")
+    is_auth = auth_header in TOKENS
 
-    def do_OPTIONS(self):
-        self.send_response(204)
-        self.send_header("Access-Control-Allow-Origin", "*")
-        self.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization")
-        self.send_header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-        self.end_headers()
+    if path.startswith("/api/") and path != "/api/login" and not is_auth:
+        return send_json(401, {"error": "Authentication required"})
 
-    def do_GET(self):
-        path = urlparse(self.path).path
-        if path.startswith("/api/") and not self.authenticated():
-            self.send_json(401, {"error": "Authentication required"})
-            return
-        with connect() as connection:
+    try:
+        request_body_size = int(environ.get("CONTENT_LENGTH", 0))
+    except (ValueError):
+        request_body_size = 0
+
+    request_body = environ["wsgi.input"].read(request_body_size) if request_body_size > 0 else b"{}"
+
+    def read_json():
+        return json.loads(request_body or b"{}")
+
+    with connect() as connection:
+        if method == "GET":
             if path == "/api/students":
                 rows = connection.execute("SELECT * FROM students ORDER BY id").fetchall()
-                self.send_json(200, [row_json(row) for row in rows])
+                return send_json(200, [row_json(row) for row in rows])
             elif path == "/api/teachers":
                 rows = connection.execute("SELECT * FROM teachers ORDER BY id").fetchall()
-                self.send_json(200, [row_json(row) for row in rows])
+                return send_json(200, [row_json(row) for row in rows])
             elif path == "/api/results":
                 rows = connection.execute("SELECT * FROM results ORDER BY id").fetchall()
-                self.send_json(200, [row_json(row) for row in rows])
+                return send_json(200, [row_json(row) for row in rows])
             elif path == "/api/settings":
-                self.send_json(200, row_json(connection.execute("SELECT * FROM settings WHERE id = 1").fetchone()))
+                return send_json(200, row_json(connection.execute("SELECT * FROM settings WHERE id = 1").fetchone()))
             else:
-                self.serve_file(path)
+                relative = "index.html" if path in ("", "/") else path.lstrip("/")
+                file_path = (ROOT / relative).resolve()
+                if not file_path.is_file():
+                    return send_json(404, {"error": "Not found"})
+                content_type = "text/html" if file_path.suffix == ".html" else "text/css" if file_path.suffix == ".css" else "application/javascript" if file_path.suffix == ".js" else "image/jpeg"
+                body = file_path.read_bytes()
+                headers = [("Content-Type", content_type), ("Content-Length", str(len(body)))]
+                return response(200, headers, body)
 
-    def do_POST(self):
-        path = urlparse(self.path).path
-        if path == "/api/login":
-            data = self.read_json()
-            password_hash = hashlib.sha256(data.get("password", "").encode()).hexdigest()
-            with connect() as connection:
+        elif method == "POST":
+            data = read_json()
+            if path == "/api/login":
+                password_hash = hashlib.sha256(data.get("password", "").encode()).hexdigest()
                 user = connection.execute("SELECT id FROM users WHERE username = ? AND password_hash = ?", (data.get("username"), password_hash)).fetchone()
-            if not user:
-                self.send_json(401, {"error": "Invalid username or password"})
-                return
-            token = secrets.token_urlsafe(32)
-            TOKENS.add(token)
-            self.send_json(200, {"token": token})
-            return
-        if not self.authenticated():
-            self.send_json(401, {"error": "Authentication required"})
-            return
-        data = self.read_json()
-        with connect() as connection:
-            if path == "/api/students":
+                if not user:
+                    return send_json(401, {"error": "Invalid username or password"})
+                token = secrets.token_urlsafe(32)
+                TOKENS.add(token)
+                return send_json(200, {"token": token})
+
+            elif path == "/api/students":
                 cursor = connection.execute("INSERT INTO students (name, registration_number, class_name, gender, date_of_birth, parent_name, parent_phone, address) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", (data["name"], data["registrationNumber"], data.get("className"), data.get("gender"), data.get("dateOfBirth"), data.get("parentName"), data.get("parentPhone"), data.get("address")))
-                self.send_json(201, {"id": cursor.lastrowid})
+                return send_json(201, {"id": cursor.lastrowid})
             elif path == "/api/teachers":
                 cursor = connection.execute("INSERT INTO teachers (name, email, phone, subject, classes, role) VALUES (?, ?, ?, ?, ?, ?)", (data["name"], data.get("email"), data.get("phone"), data.get("subject"), data.get("classes"), data.get("role")))
-                self.send_json(201, {"id": cursor.lastrowid})
+                return send_json(201, {"id": cursor.lastrowid})
             elif path == "/api/results":
                 cursor = connection.execute("INSERT INTO results (exam, class_name, subject, average, date, status) VALUES (?, ?, ?, ?, ?, ?)", (data["exam"], data.get("className"), data.get("subject"), data.get("average"), data.get("date"), data.get("status")))
-                self.send_json(201, {"id": cursor.lastrowid})
+                return send_json(201, {"id": cursor.lastrowid})
             elif path == "/api/settings":
                 connection.execute("UPDATE settings SET school_name = ?, academic_year = ? WHERE id = 1", (data.get("schoolName"), data.get("academicYear")))
-                self.send_json(200, {"saved": True})
-            else:
-                self.send_json(404, {"error": "Not found"})
+                return send_json(200, {"saved": True})
 
-    def do_PUT(self):
-        if not self.authenticated():
-            self.send_json(401, {"error": "Authentication required"})
-            return
-        path = urlparse(self.path).path
-        data = self.read_json()
-        if path.startswith("/api/students/"):
+        elif method == "PUT" and path.startswith("/api/students/"):
+            data = read_json()
             student_id = path.rsplit("/", 1)[1]
-            with connect() as connection:
-                connection.execute("UPDATE students SET name=?, registration_number=?, class_name=?, gender=?, date_of_birth=?, parent_name=?, parent_phone=?, address=? WHERE id=?", (data["name"], data["registrationNumber"], data.get("className"), data.get("gender"), data.get("dateOfBirth"), data.get("parentName"), data.get("parentPhone"), data.get("address"), student_id))
-            self.send_json(200, {"saved": True})
-        else:
-            self.send_json(404, {"error": "Not found"})
+            connection.execute("UPDATE students SET name=?, registration_number=?, class_name=?, gender=?, date_of_birth=?, parent_name=?, parent_phone=?, address=? WHERE id=?", (data["name"], data["registrationNumber"], data.get("className"), data.get("gender"), data.get("dateOfBirth"), data.get("parentName"), data.get("parentPhone"), data.get("address"), student_id))
+            return send_json(200, {"saved": True})
 
-    def do_DELETE(self):
-        if not self.authenticated():
-            self.send_json(401, {"error": "Authentication required"})
-            return
-        path = urlparse(self.path).path
-        if path.startswith("/api/students/"):
-            with connect() as connection:
-                connection.execute("DELETE FROM students WHERE id = ?", (path.rsplit("/", 1)[1],))
-            self.send_json(200, {"deleted": True})
-        else:
-            self.send_json(404, {"error": "Not found"})
+        elif method == "DELETE" and path.startswith("/api/students/"):
+            connection.execute("DELETE FROM students WHERE id = ?", (path.rsplit("/", 1)[1],))
+            return send_json(200, {"deleted": True})
 
-    def serve_file(self, path):
-        relative = "index.html" if path in ("", "/") else path.lstrip("/")
-        file_path = (ROOT / relative).resolve()
-        if ROOT not in file_path.parents and file_path != ROOT:
-            self.send_error(403)
-            return
-        if not file_path.is_file():
-            self.send_error(404)
-            return
-        content_type = "text/html" if file_path.suffix == ".html" else "text/css" if file_path.suffix == ".css" else "application/javascript" if file_path.suffix == ".js" else "image/jpeg"
-        body = file_path.read_bytes()
-        self.send_response(200)
-        self.send_header("Content-Type", content_type)
-        self.send_header("Content-Length", str(len(body)))
-        self.end_headers()
-        self.wfile.write(body)
-
-    def log_message(self, format, *args):
-        print(format % args)
+    return send_json(404, {"error": "Not found"})
 
 
 if __name__ == "__main__":
-    initialize_database()
-    host = os.environ.get("HOST", "0.0.0.0")
+    from wsgiref.simple_server import make_server
     port = int(os.environ.get("PORT", 8000))
-    
-    server = ThreadingHTTPServer((host, port), Handler)
-    print(f"Iyunga backend running at http://{host}:{port}")
-    server.serve_forever()
+    httpd = make_server("0.0.0.0", port, app)
+    print(f"Running on port {port}...")
+    httpd.serve_forever()
